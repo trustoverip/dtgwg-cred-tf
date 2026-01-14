@@ -1,6 +1,4 @@
-# Decentralized Trust Graph Credentials (Early Draft, v0.3)
-
-DTG Credentials - Core Specification
+# Decentralized Trust Graph Credentials - Core Specification (Early Draft, v0.3)
 
 ## 1. Overview
 
@@ -8,24 +6,24 @@ This specification defines six W3C Verifiable Credential types and one Verifiabl
 
 These credentials and data structures fall into four functional categories:
 
-**Edge Credentials** - Create nodes and relationships in the trust graph:
+1. **Edge Credentials** - Create nodes and relationships in the trust graph:
 
-- **VMC** (Membership Credential) - Establishes a node (membership in a VTC/VTN)
-- **VRC** (Relationship Credential) - Creates a directed trust edge between two nodes
+    - **VMC** (Membership Credential) - Establishes a node (membership in a VTC/VTN)
+    - **VRC** (Relationship Credential) - Creates a directed trust edge between two nodes
 
-**Invitation Credentials** - Bootstrap new members into communities:
+2. **Invitation Credentials** - Bootstrap new members into communities:
 
-- **InvitationCredential** - Authorizes onboarding of a prospective member
+    - **InvitationCredential** - Authorizes onboarding of a prospective member
 
-**Annotation Credentials** - Attach data to existing edges without creating new graph structure:
+3. **Annotation Credentials** - Attach data to existing edges without creating new graph structure:
 
-- **VPC** (Persona Credential) - Links a persona to a relationship
-- **VEC** (Endorsement Credential) - Endorses skills/reputation
-- **VWC** (Witness Credential) - Third-party attestation of an edge
+    - **VPC** (Persona Credential) - Links a persona to a relationship
+    - **VEC** (Endorsement Credential) - Endorses skills/reputation
+    - **VWC** (Witness Credential) - Third-party attestation of an edge
 
-**Verifiable Data Structures (VDS)** - Structured data exchange:
+4. **Verifiable Data Structures (VDS)** - Structured data exchange:
 
-- **RCard** (Relationship Card) - Human-readable identity data (like a business card)
+    - **RCard** (Relationship Card) - Human-readable identity data (like a business card)
 
 > **Important:** These four categories are **descriptive only** and aid understanding. They do not appear in credential schemas. The formal type hierarchy has only one abstract parent: `DTGCredential`.
 
@@ -81,7 +79,7 @@ graph TB
 
 ## Formal W3C Type Hierarchy
 
-```sans-serif
+```sh
 VerifiableCredential
 └── DTGCredential
     ├── MembershipCredential (VMC)
@@ -101,7 +99,7 @@ This specification is written using **W3C Verifiable Credentials Data Model v2.0
 
 ### Legacy System Compatibility: v1.1
 
-Many existing identity verification providers, trust registries, and community infrastructure may only support W3C VC Data Model v1.1. To ensure broad interoperability and avoid forcing costly system migrations:
+Many existing identity verification providers(IDVPs), trust registries, and community infrastructure may only support W3C VC Data Model v1.1. To ensure broad interoperability and avoid forcing costly system migrations:
 
 - DTG implementations **SHOULD** accept and verify v1.1 credentials
 - Existing credential issuers **MAY** issue DTG-compliant credentials using v1.1 syntax
@@ -109,7 +107,7 @@ Many existing identity verification providers, trust registries, and community i
 
 > **Design Intent:** This dual-version support enables:
 >
-> - Legacy IDVPs to issue VMCs (personhood credentials) without system upgrades
+> - Legacy IDVPs to issue IDVCs ([identity verification credentials](#identity-verification-credentials-idvc)) without system upgrades
 > - Existing VTCs to participate in the DTG using their current infrastructure
 > - Gradual ecosystem migration from v1.1 to v2.0 without breaking trust relationships
 
@@ -187,7 +185,7 @@ All DTG-specific schemas (types, issuer requirements, credentialSubject structur
 
 ## 4. Base Structure
 
-All DTG credentials share this W3C VC structure (v2.0 shown; see §2 for v1.1 compatibility):
+All DTG credentials share this W3C VC structure (v2.0 shown; see [§3](#legacy-system-compatibility-v11) for v1.1 compatibility):
 
 **Schema:**
 
@@ -293,7 +291,7 @@ All DTG credentials share this W3C VC structure (v2.0 shown; see §2 for v1.1 co
 }
 ```
 
-**Note:** R-DIDs recommended for privacy; M-DIDs allowed for bootstrapping (see privacy considerations).
+**Note:** R-DIDs recommended for privacy; M-DIDs allowed for bootstrapping (see [Privacy Considerations](#privacy-considerations)).
 
 #### Unilateral Relationship Identification
 
@@ -357,8 +355,9 @@ This allows proof of relationship existence without revealing the specific DIDs 
 }
 ```
 
-**Roles and access control** Roles and access control policy details are primarily inferred from issuer + trust registry.
-**Q:** Should any of this be embedded in the VIC?
+> **Roles and access control**  
+> Roles and access control policy details are primarily inferred from issuer + trust registry.  
+> **Q:** Should any of this be embedded in the VIC?
 
 ---
 
@@ -486,7 +485,7 @@ Annotation credentials **do not create graph structure**. They attach data to ex
 
 **Status:** RCard is a **VDS**, not a DTGCredential subtype, though it is implemented as a W3C VC.
 
-**Schema (v2.0 shown; see §2 for v1.1 compatibility):**
+**Schema (v2.0 shown; see [§3](#legacy-system-compatibility-v11) for v1.1 compatibility):**
 
 - `type` (array, REQUIRED): MUST include `"VerifiableCredential"` and `"RelationshipCard"`; does NOT include `"DTGCredential"`
 - `issuer` (string, REQUIRED): DID of the card publisher
