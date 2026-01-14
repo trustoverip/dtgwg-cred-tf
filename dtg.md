@@ -1,6 +1,4 @@
-# Decentralized Trust Graph Credentials (Early Draft, v0.3)
-
-# DTG Credentials - Core Specification
+# Decentralized Trust Graph Credentials - Core Specification (Early Draft, v0.3)
 
 ## 1. Overview
 
@@ -8,23 +6,26 @@ This specification defines six W3C Verifiable Credential types and one Verifiabl
 
 These credentials and data structures fall into four functional categories:
 
-**Edge Credentials** - Create nodes and relationships in the trust graph:
-- **VMC** (Membership Credential) - Establishes a node (membership in a VTC/VTN)
-- **VRC** (Relationship Credential) - Creates a directed trust edge between two nodes
+1. **Edge Credentials** - Create nodes and relationships in the trust graph:
 
-**Invitation Credentials** - Bootstrap new members into communities:
-- **InvitationCredential** - Authorizes onboarding of a prospective member
+    - **VMC** (Membership Credential) - Establishes a node (membership in a VTC/VTN)
+    - **VRC** (Relationship Credential) - Creates a directed trust edge between two nodes
 
-**Annotation Credentials** - Attach data to existing edges without creating new graph structure:
-- **VPC** (Persona Credential) - Links a persona to a relationship
-- **VEC** (Endorsement Credential) - Endorses skills/reputation
-- **VWC** (Witness Credential) - Third-party attestation of an edge
+2. **Invitation Credentials** - Bootstrap new members into communities:
 
-**Verifiable Data Structures (VDS)** - Structured data exchange:
-- **RCard** (Relationship Card) - Human-readable identity data (like a business card)
+    - **VIC** (Invitation Credential) - Authorizes onboarding of a prospective member
+
+3. **Annotation Credentials** - Attach data to existing edges without creating new graph structure:
+
+    - **VPC** (Persona Credential) - Links a persona to a relationship
+    - **VEC** (Endorsement Credential) - Endorses skills/reputation
+    - **VWC** (Witness Credential) - Third-party attestation of an edge
+
+4. **Verifiable Data Structures (VDS)** - Structured data exchange:
+
+    - **RCard** (Relationship Card) - Human-readable identity data (like a business card)
 
 > **Important:** These four categories are **descriptive only** and aid understanding. They do not appear in credential schemas. The formal type hierarchy has only one abstract parent: `DTGCredential`.
-
 
 ---
 
@@ -76,9 +77,9 @@ graph TB
     class L1,L2,L3,L4 legend
 ```
 
-#### Formal W3C Type Hierarchy:
+## Formal W3C Type Hierarchy
 
-```
+```sh
 VerifiableCredential
 └── DTGCredential
     ├── MembershipCredential (VMC)
@@ -98,14 +99,15 @@ This specification is written using **W3C Verifiable Credentials Data Model v2.0
 
 ### Legacy System Compatibility: v1.1
 
-Many existing identity verification providers, trust registries, and community infrastructure may only support W3C VC Data Model v1.1. To ensure broad interoperability and avoid forcing costly system migrations:
+Many existing identity verification providers(IDVPs), trust registries, and community infrastructure may only support W3C VC Data Model v1.1. To ensure broad interoperability and avoid forcing costly system migrations:
 
 - DTG implementations **SHOULD** accept and verify v1.1 credentials
 - Existing credential issuers **MAY** issue DTG-compliant credentials using v1.1 syntax
 - New implementations **SHOULD** prioritize v2.0 but **MAY** also issue v1.1 when required by ecosystem constraints
 
 > **Design Intent:** This dual-version support enables:
-> - Legacy IDVPs to issue VMCs (personhood credentials) without system upgrades
+>
+> - Legacy IDVPs to issue IDVCs ([identity verification credentials](#identity-verification-credentials-idvc)) without system upgrades
 > - Existing VTCs to participate in the DTG using their current infrastructure
 > - Gradual ecosystem migration from v1.1 to v2.0 without breaking trust relationships
 
@@ -114,7 +116,7 @@ Many existing identity verification providers, trust registries, and community i
 The only differences between v1.1 and v2.0 DTG credentials are:
 
 | Property | v1.1 | v2.0 |
-|----------|------|------|
+| ---------- | ------ | ------ |
 | **Context** | `https://www.w3.org/2018/credentials/v1` | `https://www.w3.org/ns/credentials/v2` |
 | **Issuance** | `issuanceDate` | `validFrom` |
 | **Expiration** | `expirationDate` | `validUntil` |
@@ -126,6 +128,7 @@ All DTG-specific schemas (types, issuer requirements, credentialSubject structur
 ### Dual-Version Examples
 
 **v2.0 (Primary):**
+
 ```jsonc
 {
   "@context": [
@@ -151,6 +154,7 @@ All DTG-specific schemas (types, issuer requirements, credentialSubject structur
 ```
 
 **v1.1 (Legacy Compatibility):**
+
 ```jsonc
 {
   "@context": [
@@ -177,14 +181,14 @@ All DTG-specific schemas (types, issuer requirements, credentialSubject structur
 
 > **Note:** All examples in this specification use v2.0 syntax unless explicitly labeled otherwise. When implementing v1.1 support, use the property mappings above.
 
-
 ---
 
 ## 4. Base Structure
 
-All DTG credentials share this W3C VC structure (v2.0 shown; see §2 for v1.1 compatibility):
+All DTG credentials share this W3C VC structure (v2.0 shown; see [§3](#legacy-system-compatibility-v11) for v1.1 compatibility):
 
 **Schema:**
+
 - `@context` (array, REQUIRED): MUST include `"https://www.w3.org/ns/credentials/v2"` and `"https://firstperson.network/credentials/dtg/v1"`, plus any additional contexts required by the proof type
 - `type` (array, REQUIRED): MUST include `"VerifiableCredential"`, `"DTGCredential"`, and exactly one concrete subtype
 - `issuer` (string, REQUIRED): DID of the issuing entity (C-DID, M-DID, R-DID, or P-DID as appropriate)
@@ -196,6 +200,7 @@ All DTG credentials share this W3C VC structure (v2.0 shown; see §2 for v1.1 co
 - `proof` (object, REQUIRED): W3C VC proof object
 
 **Example:**
+
 ```jsonc
 {
   "@context": [
@@ -229,12 +234,14 @@ All DTG credentials share this W3C VC structure (v2.0 shown; see §2 for v1.1 co
 **Purpose:** Establishes a node in the DTG by defining membership in a VTC or VTN.
 
 **Schema:**
+
 - `type` (array, REQUIRED): MUST include `"MembershipCredential"`
 - `issuer` (string, REQUIRED): C-DID of the VTC or VTN
 - `credentialSubject` (object, REQUIRED):
-  - `id` (string, REQUIRED): M-DID of the member (person/device/agent) OR C-DID (for VTC-to-VTC membership)
+  - `id` (string, REQUIRED): M-DID of the member (person/device/agent) OR C-DID (for VTN-to-VTC membership)
 
 **Example:**
+
 ```jsonc
 {
   "@context": [
@@ -259,12 +266,14 @@ All DTG credentials share this W3C VC structure (v2.0 shown; see §2 for v1.1 co
 **Purpose:** Creates a directed trust edge between two nodes. Two VRCs (one each direction) form a complete DTG edge.
 
 **Schema:**
+
 - `type` (array, REQUIRED): MUST include `"RelationshipCredential"`
 - `issuer` (string, REQUIRED): R-DID or M-DID of the source party
 - `credentialSubject` (object, REQUIRED):
   - `id` (string, REQUIRED): R-DID or M-DID of the target party
 
 **Example:**
+
 ```jsonc
 {
   "@context": [
@@ -282,7 +291,7 @@ All DTG credentials share this W3C VC structure (v2.0 shown; see §2 for v1.1 co
 }
 ```
 
-**Note:** R-DIDs recommended for privacy; M-DIDs allowed for bootstrapping (see privacy considerations).
+**Note:** R-DIDs recommended for privacy; M-DIDs allowed for bootstrapping (see [Privacy Considerations](#privacy-considerations)).
 
 #### Unilateral Relationship Identification
 
@@ -290,8 +299,8 @@ A Relationship DID (R-DID) generated by a controller for the explicit purpose of
 
 Therefore, a relationship within the DTG can be canonically identified by two independent identifiers:
 
-* The Source R-DID (controlled by the Issuer)
-* The Target R-DID (controlled by the Subject)
+- The Source R-DID (controlled by the Issuer)
+- The Target R-DID (controlled by the Subject)
 
 Semantic statements, metadata, or private context regarding the relationship MAY be anchored solely to the controller's own R-DID, without requiring the resolution or inclusion of the counterparty's identifier.
 
@@ -300,9 +309,10 @@ Semantic statements, metadata, or private context regarding the relationship MAY
 #### Zero-Knowledge Proof Requirements
 
 To prove a relationship using a VRC, the holder proves:
-1.  Possession of the VRC
-2.  Possession of the underlying VMC (proving membership in the community)
-3.  The VRC issuer possesses a VMC from the *same* C-DID
+
+1. Possession of the VRC
+2. Possession of the underlying VMC (proving membership in the community)
+3. The VRC issuer possesses a VMC from the *same* C-DID
 
 This allows proof of relationship existence without revealing the specific DIDs or other credential details.
 
@@ -310,11 +320,12 @@ This allows proof of relationship existence without revealing the specific DIDs 
 
 ## 6. Invitation Credentials
 
-### InvitationCredential (VIC)
+### 6.1 VIC (Invitation Credential)
 
 **Purpose:** Authorizes a prospective member to join a VTC or VTN when presented to the VTA/PEP.
 
 **Schema:**
+
 - `type` (array, REQUIRED): MUST include `"InvitationCredential"`
 - `issuer` (string, REQUIRED):
   - For VTC invitation: VTC C-DID OR authorized member's M-DID (per policy)
@@ -325,6 +336,7 @@ This allows proof of relationship existence without revealing the specific DIDs 
     - For VTN invitation: prospective VTC's C-DID
 
 **Example (VTC member invitation):**
+
 ```jsonc
 {
   "@context": [
@@ -343,8 +355,9 @@ This allows proof of relationship existence without revealing the specific DIDs 
 }
 ```
 
-**Roles and access control** Roles and access control policy details are primarily inferred from issuer + trust registry.
-**Q:** Should any of this be embedded in the VIC?
+> **Roles and access control**  
+> Roles and access control policy details are primarily inferred from issuer + trust registry.  
+> **Q:** Should any of this be embedded in the VIC?
 
 ---
 
@@ -357,12 +370,14 @@ Annotation credentials **do not create graph structure**. They attach data to ex
 **Purpose:** Links a persona DID (P-DID) to an existing relationship.
 
 **Schema:**
+
 - `type` (array, REQUIRED): MUST include `"PersonaCredential"`
 - `issuer` (string, REQUIRED): P-DID of the persona
 - `credentialSubject` (object, REQUIRED):
   - `id` (string, REQUIRED): Counterparty's DID (typically R-DID or M-DID used in the relationship)
 
 **Example:**
+
 ```jsonc
 {
   "@context": [
@@ -387,6 +402,7 @@ Annotation credentials **do not create graph structure**. They attach data to ex
 **Purpose:** Attaches endorsements (skills, reputation) to a party.
 
 **Schema:**
+
 - `type` (array, REQUIRED): MUST include `"EndorsementCredential"`
 - `issuer` (string, REQUIRED): DID of the endorser
 - `credentialSubject` (object, REQUIRED):
@@ -395,6 +411,7 @@ Annotation credentials **do not create graph structure**. They attach data to ex
     - Structure and fields determined by community policy
 
 **Example:**
+
 ```jsonc
 {
   "@context": [
@@ -424,6 +441,7 @@ Annotation credentials **do not create graph structure**. They attach data to ex
 **Purpose:** Third-party attestation that an edge was established under specific conditions.
 
 **Schema:**
+
 - `type` (array, REQUIRED): MUST include `"WitnessCredential"`
 - `issuer` (string, REQUIRED): Witness DID (W-DID)
 - `credentialSubject` (object, REQUIRED):
@@ -435,6 +453,7 @@ Annotation credentials **do not create graph structure**. They attach data to ex
     - `method` (string, OPTIONAL): Verification method used
 
 **Example:**
+
 ```jsonc
 {
   "@context": [
@@ -466,7 +485,8 @@ Annotation credentials **do not create graph structure**. They attach data to ex
 
 **Status:** RCard is a **VDS**, not a DTGCredential subtype, though it is implemented as a W3C VC.
 
-**Schema (v2.0 shown; see §2 for v1.1 compatibility):**
+**Schema (v2.0 shown; see [§3](#legacy-system-compatibility-v11) for v1.1 compatibility):**
+
 - `type` (array, REQUIRED): MUST include `"VerifiableCredential"` and `"RelationshipCard"`; does NOT include `"DTGCredential"`
 - `issuer` (string, REQUIRED): DID of the card publisher
 - `credentialSubject` (object, REQUIRED):
@@ -474,6 +494,7 @@ Annotation credentials **do not create graph structure**. They attach data to ex
   - `card` (array, REQUIRED): JCard (RFC 7095) formatted data
 
 **Example:**
+
 ```jsonc
 {
   "@context": [
@@ -504,12 +525,14 @@ Annotation credentials **do not create graph structure**. They attach data to ex
 ### Personhood Credentials (PHC)
 
 A **PHC** is simply a **VMC** issued by a VTC whose governance enforces:
+
 - Real human personhood
 - Exactly one membership per person
 
 No additional schema fields required. PHC status is determined by governance and trust registries, not by credential structure. Issuers may optionally add `"PersonhoodCredential"` to the `type` array as a non-authoritative hint.
 
 **Example:**
+
 ```jsonc
 {
   "type": [
@@ -527,7 +550,7 @@ No additional schema fields required. PHC status is determined by governance and
 
 ### Trust Registries
 
-- **Authoritative source** for roles (initiator, CTA, member, IDVP, trust anchors, etc.)
+- **Authoritative source** for roles (initiator, trust anchor, member, IDVP, etc.)
 - Map DIDs to roles and policies
 - Determine acceptable issuers
 - Schema and APIs out of scope for this spec
