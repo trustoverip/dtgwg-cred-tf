@@ -13,7 +13,7 @@ These credentials and data structures fall into four functional categories:
 
 2. **Invitation Credentials** - Bootstrap new members into communities:
 
-    - **InvitationCredential** - Authorizes onboarding of a prospective member
+    - **VIC** (Invitation Credential) - Authorizes onboarding of a prospective member
 
 3. **Annotation Credentials** - Attach data to existing edges without creating new graph structure:
 
@@ -238,7 +238,7 @@ All DTG credentials share this W3C VC structure (v2.0 shown; see [§3](#legacy-s
 - `type` (array, REQUIRED): MUST include `"MembershipCredential"`
 - `issuer` (string, REQUIRED): C-DID of the VTC or VTN
 - `credentialSubject` (object, REQUIRED):
-  - `id` (string, REQUIRED): M-DID of the member (person/device/agent) OR C-DID (for VTC-to-VTC membership)
+  - `id` (string, REQUIRED): M-DID of the member (person/device/agent) OR C-DID (for VTN-to-VTC membership)
 
 **Example:**
 
@@ -320,7 +320,7 @@ This allows proof of relationship existence without revealing the specific DIDs 
 
 ## 6. Invitation Credentials
 
-### InvitationCredential (VIC)
+### 6.1 VIC (Invitation Credential)
 
 **Purpose:** Authorizes a prospective member to join a VTC or VTN when presented to the VTA/PEP.
 
@@ -550,7 +550,7 @@ No additional schema fields required. PHC status is determined by governance and
 
 ### Trust Registries
 
-- **Authoritative source** for roles (initiator, CTA, member, IDVP, trust anchors, etc.)
+- **Authoritative source** for roles (initiator, trust anchor, member, IDVP, etc.)
 - Map DIDs to roles and policies
 - Determine acceptable issuers
 - Schema and APIs out of scope for this spec
