@@ -10,6 +10,7 @@
 | **"I am a unique member of this community."** | **VMC** + **PHC** | **ZKP** | "One-person-one-vote" governance systems where you prove you have the right to vote exactly once, without revealing which member you are. |
 | **"I am a citizen of Country X."** | **PHC** (from Gov Issuer) | **Reveal** or **ZKP** | KYC/AML compliance where the C-DID is a national registry. |
 | **"I have been a member since [Year]."** | **VMC** | **ZKP** (Range Proof) | Airdrops or loyalty rewards reserved for long-term community members (proving `validFrom` < 2022). |
+| **"I was invited by a member."** | **VIC** | **ZKP** | Proving you received a legitimate invitation without revealing who invited you. |
 
 ## 2. Social Capital & Trust (Web of Trust)
 
@@ -59,3 +60,8 @@
   - *Credentials:* **VMC** (from Community A) + **VMC** (from Community B).
   - *Claim:* "I act as a bridge node between the Engineering Team and the Sales Team."
   - *Why:* Useful for organizational analysis to identify key communication hubs.
+
+- **The "Trusted Referral Chain" Proof:**
+  - *Credentials:* **VIC** + **Inviter's VMC** + **Inviter's PHC**.
+  - *Claim:* "I was invited by a verified human community member."
+  - *Why:* Ensures new members enter through trusted referral chains, not bulk invites.
