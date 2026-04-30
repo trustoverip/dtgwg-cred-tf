@@ -6,10 +6,10 @@ This specification defines six W3C Verifiable Credential types and one Verifiabl
 
 These credentials and data structures fall into four functional categories:
 
-1. **Edge Credentials** - Create nodes and relationships in the trust graph:
+1. **Edge Credentials** - establish relationships between existing entities (nodes) in the DTG:
 
-    - **VMC** (Membership Credential) - Establishes a node (membership in a VTC/VTN)
-    - **VRC** (Relationship Credential) - Creates a directed trust edge between two nodes
+    - **VMC** (Membership Credential) - a verifiable credential that attests to the membership of an entity in a community; membership is verified through a bi-directional pair of VMCs
+    - **VRC** (Relationship Credential) - a verifiable credential that attests to a relationship between two entities; the relationship is verified through a bi-directional pair of VRCs
 
 2. **Invitation Credentials** - Bootstrap new members into communities:
 
@@ -51,8 +51,8 @@ graph TB
         end
 
         subgraph Edge["Edge Credentials"]
-            VMC["VMC<br/><small>MembershipCredential</small><br/><i>Creates membership node</i>"]
-            VRC["VRC<br/><small>RelationshipCredential</small><br/><i>Creates directed edge</i>"]
+            VMC["VMC<br/><small>MembershipCredential</small><br/><i>Creates membership relationship</i>"]
+            VRC["VRC<br/><small>RelationshipCredential</small><br/><i>Creates peer-to-peer relationship</i>"]
         end
     end
 
@@ -231,7 +231,7 @@ All DTG credentials share this W3C VC structure (v2.0 shown; see [§3](#legacy-s
 
 ### 5.1 VMC (Membership Credential)
 
-**Purpose:** Establishes a node in the DTG by defining membership in a VTC or VTN.
+**Purpose:** Attests to the membership of an entity in a VTC or VTN; two VMCs (one each direction) form a complete DTG edge.
 
 **Schema:**
 
@@ -263,7 +263,7 @@ All DTG credentials share this W3C VC structure (v2.0 shown; see [§3](#legacy-s
 
 ### 5.2 VRC (Relationship Credential)
 
-**Purpose:** Creates a directed trust edge between two nodes. Two VRCs (one each direction) form a complete DTG edge.
+**Purpose:** Attests to a relationship between two entities; two VRCs (one each direction) form a complete DTG edge.
 
 **Schema:**
 
