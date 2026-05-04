@@ -2,14 +2,14 @@
 
 ## 1. Overview
 
-This specification defines six W3C Verifiable Credential types and one Verifiable Data Structure (VDS) for the Decentralized Trust Graph (DTG). These credentials enable **privacy-preserving zero-knowledge proofs (ZKPs)** of personhood, community membership, and facts about relationships from the perspective of the entities involved, while maintaining minimal correlation across contexts.
+This specification defines six W3C Verifiable Credential types and one Verifiable Data Structure (VDS) for the Decentralized Trust Graph (DTG). These credentials are W3C-compliant Verifiable Credentials and MAY be presented using standard VC presentation methods when privacy preservation is not desired. They SHOULD, however, be presented using **privacy-preserving zero-knowledge proofs (ZKPs)** — of personhood, community membership, and facts about relationships — whenever privacy preservation is desired, since ZKPs are the only inherently privacy-preserving option for proof of personhood with DTG credentials (cf. [Personhood Credentials, Adler et al. 2024](https://arxiv.org/pdf/2408.07892)). Used this way, ZKPs allow holders to prove what they need to prove from the perspective of the entities involved while maintaining minimal correlation across contexts.
 
 These credentials and data structures fall into four functional categories:
 
 1. **Edge Credentials** - establish relationships between existing entities (nodes) in the DTG:
 
-    - **VMC** (Membership Credential) - a verifiable credential that attests to the membership of an entity in a community; membership is verified through a bi-directional pair of VMCs
     - **VRC** (Relationship Credential) - a verifiable credential that attests to a relationship between two entities; the relationship is verified through a bi-directional pair of VRCs
+    - **VMC** (Membership Credential) - a verifiable credential that attests to the membership of an entity in a community; membership is verified through a bi-directional pair of VMCs
 
 2. **Invitation Credentials** - Bootstrap new members into communities:
 
@@ -229,39 +229,7 @@ All DTG credentials share this W3C VC structure (v2.0 shown; see [§3](#legacy-s
 
 ## 5. Edge Credentials
 
-### 5.1 VMC (Membership Credential)
-
-**Purpose:** Attests to the membership of an entity in a VTC or VTN; two VMCs (one each direction) form a complete DTG edge.
-
-**Schema:**
-
-- `type` (array, REQUIRED): MUST include `"MembershipCredential"`
-- `issuer` (string, REQUIRED): C-DID of the VTC or VTN
-- `credentialSubject` (object, REQUIRED):
-  - `id` (string, REQUIRED): M-DID of the member (person/device/agent) OR C-DID (for VTN-to-VTC membership)
-
-**Example:**
-
-```jsonc
-{
-  "@context": [
-    "https://www.w3.org/ns/credentials/v2",
-    "https://firstperson.network/credentials/dtg/v1",
-    "https://w3id.org/security/suites/ed25519-2020/v1"
-  ],
-  "type": ["VerifiableCredential", "DTGCredential", "MembershipCredential"],
-  "issuer": "did:web:chess-club.example",
-  "validFrom": "2026-01-06T10:00:00Z",
-  "credentialSubject": {
-    "id": "did:key:z6MkpTHR8VNs..."
-  },
-  "proof": { /* ... */ }
-}
-```
-
----
-
-### 5.2 VRC (Relationship Credential)
+### 5.1 VRC (Relationship Credential)
 
 **Purpose:** Attests to a relationship between two entities; two VRCs (one each direction) form a complete DTG edge.
 
@@ -306,15 +274,57 @@ Semantic statements, metadata, or private context regarding the relationship MAY
 
 > **IMPORTANT**: The valid application of this specification requires that each entity MUST generate a new, unique R-DID for every single entity they connect with, even within the same community.
 
-#### Zero-Knowledge Proof Requirements
+#### Pairwise Zero-Knowledge Proof
 
-To prove a relationship using a VRC, the holder proves:
+The holder of a VRC MAY construct a zero-knowledge proof that demonstrates possession of a valid VRC and selectively discloses chosen attributes, subject DIDs, or predicates over them. A common application is to disclose the parties' persona DIDs (P-DIDs) while hiding the underlying relationship DIDs (R-DIDs), enabling a public, verifiable claim that two known personas have a relationship without exposing the private pairwise channel between them or enabling correlation across the holder's other presentations. This construction is available to any two parties who hold a VRC between them, regardless of whether they share — or hold — a VMC. It supports selective disclosure and minimal correlation across contexts. It does not by itself confer any community-level assurance (e.g., personhood); whatever assurance it carries derives from the parties' own out-of-band context, the public reputation attached to any disclosed persona DIDs, and the cryptographic integrity of the VRC.
+
+---
+
+### 5.2 VMC (Membership Credential)
+
+**Purpose:** Attests to the membership of an entity in a VTC or VTN; two VMCs (one each direction) form a complete DTG edge.
+
+**Schema:**
+
+- `type` (array, REQUIRED): MUST include `"MembershipCredential"`
+- `issuer` (string, REQUIRED): C-DID of the VTC or VTN
+- `credentialSubject` (object, REQUIRED):
+  - `id` (string, REQUIRED): M-DID of the member (person/device/agent) OR C-DID (for VTN-to-VTC membership)
+
+**Example:**
+
+```jsonc
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://firstperson.network/credentials/dtg/v1",
+    "https://w3id.org/security/suites/ed25519-2020/v1"
+  ],
+  "type": ["VerifiableCredential", "DTGCredential", "MembershipCredential"],
+  "issuer": "did:web:chess-club.example",
+  "validFrom": "2026-01-06T10:00:00Z",
+  "credentialSubject": {
+    "id": "did:key:z6MkpTHR8VNs..."
+  },
+  "proof": { /* ... */ }
+}
+```
+
+#### Community-Anchored Zero-Knowledge Proof
+
+A VRC is a signed Verifiable Credential. It MAY be presented and verified using standard W3C VC presentation methods when privacy preservation is not required, and it SHOULD be presented using a zero-knowledge proof whenever privacy preservation is desired. Community membership is **not** a precondition for issuing, holding, or presenting a VRC; two entities that do not share (or do not hold) a VMC can still exchange VRCs, and the resulting edges are valid trust attestations standing on their cryptographic signatures and on whatever real-world context the parties bring to them.
+
+When both parties to a VRC hold VMCs from the same community, the holder MAY construct a community-anchored ZKP of the relationship. In such a proof, the holder demonstrates:
 
 1. Possession of the VRC
 2. Possession of the underlying VMC (proving membership in the community)
-3. The VRC issuer possesses a VMC from the *same* C-DID
+3. The VRC issuer possesses a VMC from the *same* C-DID (community DID)
 
-This allows proof of relationship existence without revealing the specific DIDs or other credential details.
+This allows the relationship's existence to be proven within a shared community's governance context without revealing the specific DIDs or other credential details. Whatever assurances the community's trust registry attaches to its VMCs (e.g., personhood, when the VMCs qualify as PHCs) carry forward into the proof.
+
+This is one proof construction available to relationships within a shared community. Detailed ZK protocols and registry-ZK interactions are out of scope for this specification (see [Zero-Knowledge & Selective Disclosure](#zero-knowledge--selective-disclosure)).
+
+Note: Implementations SHOULD make ZKP presentation the default behavior so that users obtain privacy preservation without having to opt in. See [Privacy Considerations](#privacy-considerations).
 
 ---
 
@@ -574,5 +584,7 @@ No additional schema fields required. PHC status is determined by governance and
 ### Privacy Considerations
 
 **M-DID reuse:** Allowed for bootstrapping, but implementers should carefully consider correlation risks when reusing M-DIDs across multiple relationships. Migration from M-DID-based to R-DID-based edges recommended post-bootstrapping for enhanced privacy.
+
+**ZKPs by default:** ZKP presentation should be used by default so that privacy preservation does not require any extra effort on behalf of users.
 
 ---
